@@ -1,14 +1,14 @@
 {
-  "name": "icluster",
+  "name": "clusterify",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Wrapper on top of node's cluster module. Used for handling intercommuncation between `entities`.",
+  "main": "./dist/index.js",
   "scripts": {
     "start": "nodemon ./examples/http/index.js --exec babel-node --presets es2015,stage-2",
     "test": "nodemon ./test/index.js --exec babel-node --presets es2015,stage-2",
     "build": "babel src --out-dir dist --presets es2015,stage-2"
   },
-  "author": "",
+  "author": "Badescu Theodor<theo@btheo.com>",
   "license": "ISC",
   "devDependencies": {
     "babel-preset-es2015": "^6.22.0",
