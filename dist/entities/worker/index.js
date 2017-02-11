@@ -177,3 +177,5 @@ exports.default = function (opts, bridge) {
         });
     }
 };
+
+module.exports = exports['default'];

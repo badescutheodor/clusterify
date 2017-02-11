@@ -218,3 +218,5 @@ exports.default = function (opts, bridge) {
         config.after();
     }
 };
+
+module.exports = exports['default'];

@@ -29,3 +29,4 @@ var ClusterEmitter = function (_Events$EventEmitter) {
 }(_events2.default.EventEmitter);
 
 exports.default = new ClusterEmitter();
+module.exports = exports['default'];

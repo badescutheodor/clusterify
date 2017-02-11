@@ -734,3 +734,4 @@ var _class = function () {
 }();
 
 exports.default = _class;
+module.exports = exports['default'];
