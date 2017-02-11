@@ -1,11 +1,13 @@
 import cluster from 'cluster'
 import emitter from '../events'
+import { sizeof } from '../helpers'
 import {
     EVENT_LOADED,
     EVENT_SUCCESS_SET_ID,
     ACTION_PENDING_SET_ID,
     ACTION_SUCCESS_SET_ID,
-    ACTION_CONFIRM_EMIT
+    ACTION_CONFIRM_EMIT,
+    ACTION_SET_WORKERS_COUNT
 } from '../../constants'
 
 /**
@@ -31,7 +33,7 @@ const pending  = {};
  * workers and master
  */
 export default class {
-    constructor() {
+    constructor(debug) {
         this.isMaster   = cluster.isMaster;
         this.id         = this.isMaster ? "0" : false;
 
@@ -39,6 +41,7 @@ export default class {
         this.fromEntity = false;
 
         this.registered = 0;
+        this.debug      = debug;
     }
 
     /**
@@ -55,6 +58,12 @@ export default class {
                 emitter.emit(EVENT_SUCCESS_SET_ID);
 
                 process.send(payload);
+                return;
+            }
+
+            if ( data.hasOwnProperty(ACTION_SET_WORKERS_COUNT) )
+            {
+                this.registered = data[ACTION_SET_WORKERS_COUNT];
                 return;
             }
 
@@ -95,9 +104,10 @@ export default class {
                      * workers to run their handlers
                      */
 
-                    for(let entity in entities)
+                    for( let entity in entities )
                     {
-                        if ( !entities.hasOwnProperty(entity) || entity === "0" )
+                        if ( !entities.hasOwnProperty(entity)
+                             || entity === "0" )
                         {
                             continue;
                         }
@@ -134,7 +144,6 @@ export default class {
          * Respawn the worker if dies
          */
         worker.on("exit", () => {
-            console.log('Worker exited.');
             this.register(worker);
         })
 
@@ -143,6 +152,14 @@ export default class {
          */
         let payload                    = {};
         payload[ACTION_PENDING_SET_ID] = worker.id;
+        worker.send(payload);
+
+        /**
+         * Tell the worker how many
+         * other workers exist
+         */
+        payload                           = {};
+        payload[ACTION_SET_WORKERS_COUNT] = total;
         worker.send(payload);
     }
 
@@ -160,6 +177,71 @@ export default class {
         let to         = data.to;
         let confirmed  = data.confirmed;
         let identifier = data.identifier;
+
+        if ( this.debug )
+        {
+            let bytes  = sizeof(data);
+            let kbytes = bytes / 1000
+
+            console.log(`(debug)(${kbytes} kbs): ${from} -> ${to}`);
+        }
+
+        function build() {
+            let res = {
+                getPayload() {
+                    return payload;
+                },
+
+                getSender() {
+                    return from;
+                },
+
+                isConfirmed() {
+                    return !!confirmed;
+                }
+            };
+
+            if ( confirmed )
+            {
+                res.ack = (res) => {
+                    let payload = identifier;
+
+                    if ( res )
+                    {
+                        payload = [identifier, res];
+                    }
+
+                    this.to(from).emit(ACTION_CONFIRM_EMIT, payload);
+                }
+
+                res.getIdentifier = () => {
+                    return identifier;
+                }
+            }
+
+            return res;
+        }
+        function make(response) {
+            let res = {
+                raw() {
+                    return response;
+                },
+
+                get(entity) {
+                    for(let resp in response)
+                    {
+                        if ( response[resp].hasOwnProperty(entity) )
+                        {
+                            return response[resp][entity];
+                        }
+                    }
+
+                    return false;
+                }
+            };
+
+            return res;
+        }
 
         /**
          * Worker has routed a message to master
@@ -186,25 +268,45 @@ export default class {
 
         if ( message === ACTION_CONFIRM_EMIT )
         {
+            let identifier = payload;
+            let response;
+
+            if ( payload instanceof Array )
+            {
+                identifier = payload[0];
+                response   = payload[1];
+            }
+
             if ( this.isMaster )
             {
-                let splitted = data.payload.split('#');
+                let splitted = identifier.split('#');
                 let from     = splitted[1];
 
                 if ( from != this.id )
                 {
-                    this.to(from).emit(ACTION_CONFIRM_EMIT, data.payload, this.id);
+                    this.to(from).emit(ACTION_CONFIRM_EMIT, identifier, this.id);
                 }
             }
 
-            if ( !pending.hasOwnProperty(payload) )
+            if ( !pending.hasOwnProperty(identifier) )
             {
                 return;
             }
 
-            if ( ++pending[payload].done === pending[payload].total )
+            let res   = {};
+            res[from] = response;
+
+            pending[identifier].res.push(res);
+            pending[identifier].done++;
+
+            if ( this.debug )
             {
-                pending[payload].callback();
+                console.log(`(debug): identifier -> [${identifier}], total: [${pending[identifier].total}], done: [${pending[identifier].done}]`);
+            }
+
+            if ( pending[identifier].done === pending[identifier].total )
+            {
+                pending[identifier].callback(make(pending[identifier].res));
 
                 /**
                  * Remove the handler as the emit
@@ -212,39 +314,10 @@ export default class {
                  *
                  * @TODO: If in a for loop, the pending object could fill the memory
                  */
-                delete pending[payload];
+                delete pending[identifier];
             }
 
             return;
-        }
-
-        function build() {
-            let res = {
-                getPayload() {
-                    return payload;
-                },
-
-                getSender() {
-                    return from;
-                },
-
-                isConfirmed() {
-                    return !!confirmed;
-                }
-            };
-
-            if ( confirmed )
-            {
-                res.ack = () => {
-                    this.to(from).emit(ACTION_CONFIRM_EMIT, identifier);
-                }
-
-                res.getIdentifier = () => {
-                    return identifier;
-                }
-            }
-
-            return res;
         }
 
         if ( events.hasOwnProperty(message) )
@@ -282,7 +355,7 @@ export default class {
          * @param message
          * @returns {string}
          */
-        function makeIdentifier(from, message) {
+        const makeIdentifier = (from, message) => {
             let seed       = Math.floor(Math.random() * new Date());
             let identifier = `${seed}#${from}#${message}`;
             return identifier;
@@ -299,7 +372,7 @@ export default class {
          * confirmed transports
          * @type {boolean}
          */
-        let hasIdentifier = ( typeof callback === "string" );
+        let hasIdentifier = ( typeof callback === "string" || callback instanceof Array );
 
         /**
          * Loop through the entities and emit the
@@ -337,7 +410,7 @@ export default class {
                      * of the entities container
                      * @type {{done: number, total: number}}
                      */
-                    pending[payload.identifier] = { done: 0, total: this.toEntity.length, callback };
+                    pending[payload.identifier] = { done: 0, total: this.toEntity.length, res: [], callback };
                 }
 
                 for ( let i = 0, len = this.toEntity.length; i < len; i++)
@@ -378,7 +451,7 @@ export default class {
                  * of the entities container
                  * @type {{done: number, total: number}}
                  */
-                pending[payload.identifier] = { done: 0, total: this.toEntity.length, callback };
+                pending[payload.identifier] = { done: 0, total: this.toEntity.length, res: [], callback };
             }
 
             process.send(payload);
@@ -424,7 +497,7 @@ export default class {
                          * of the entities container
                          * @type {{done: number, total: number}}
                          */
-                        pending[payload.identifier] = { done: 0, total: (Object.keys(entities).length - 1), callback };
+                        pending[payload.identifier] = { done: 0, total: (Object.keys(entities).length - 1), res: [], callback };
                     }
 
                     for ( let entity in entities )
@@ -457,6 +530,8 @@ export default class {
                     payload.confirmed  = true;
                     payload.identifier = makeIdentifier(fromEntity, message);
 
+                    // @TODO
+
                     /**
                      * The sender is master, store the identifier
                      * directly inside the pending container
@@ -465,7 +540,7 @@ export default class {
                      * of the entities container
                      * @type {{done: number, total: number}}
                      */
-                    pending[payload.identifier] = { done: 0, total: 10, callback };
+                    pending[payload.identifier] = { done: 0, total: this.registered - 1, res: [], callback };
                 }
 
                 process.send(payload);
@@ -502,12 +577,47 @@ export default class {
                      * of the entities container
                      * @type {{done: number, total: number}}
                      */
-                    pending[payload.identifier] = { done: 0, total: 1, callback };
+                    pending[payload.identifier] = { done: 0, total: 1, res: [], callback };
                 }
 
                 entities[this.toEntity].send(payload);
                 return;
             }
+
+            /**
+             * worker -> master -> worker
+             */
+
+            if ( Number(this.toEntity) !== 0 )
+            {
+                let payload = {
+                    from:    this.id,
+                    message: message,
+                    payload: data,
+                    transit: true,
+                    to:      this.toEntity
+                };
+
+                if ( callback && typeof callback === "function" )
+                {
+                    payload.confirmed  = true;
+                    payload.identifier = makeIdentifier(fromEntity, message);
+
+                    /**
+                     * The sender is master, store the identifier
+                     * directly inside the pending container
+                     *
+                     * @note It's -1 because master is the first entity
+                     * of the entities container
+                     * @type {{done: number, total: number}}
+                     */
+                    pending[payload.identifier] = { done: 0, total: 1, res: [], callback };
+                }
+
+                process.send(payload);
+                return;
+            }
+
 
             /**
              * worker -> master
@@ -531,7 +641,7 @@ export default class {
                  * of the entities container
                  * @type {{done: number, total: number}}
                  */
-                pending[payload.identifier] = { done: 0, total: 1, callback };
+                pending[payload.identifier] = { done: 0, total: 1, res: [], callback };
             }
 
             process.send(payload);
@@ -576,10 +686,42 @@ export default class {
             events[message] = [];
         }
 
+        let from = {};
+
+        if ( this.fromEntity instanceof Array )
+        {
+            from = toObject(this.fromEntity);
+        }
+        else if ( this.fromEntity === "*" )
+        {
+            let all = [];
+
+            for ( let i = 1; i < this.registered + 1; i++)
+            {
+                if ( this.id === i )
+                {
+                    continue;
+                }
+
+                all.push(i);
+            }
+
+            from = toObject(all);
+        }
+        else
+        {
+            from[this.fromEntity] = 1;
+        }
+
         let event = {
-            from:    ( this.fromEntity instanceof Array ) ? toObject(this.fromEntity) : this.fromEntity,
+            from:    from,
             handler: callback
         };
+
+        if ( this.debug )
+        {
+            console.log(`(debug): event -> [${message}], entities: [${this.fromEntity}]`);
+        }
 
         events[message].push(event);
     }

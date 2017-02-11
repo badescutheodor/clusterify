@@ -24,7 +24,7 @@ export default class {
      */
     constructor(opts) {
         this.opts   = { ...defaults, ...opts };
-        this.bridge = new Bridge();
+        this.bridge = new Bridge(this.opts.debug || false);
     }
 
     /**

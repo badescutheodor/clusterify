@@ -21,112 +21,129 @@ let channel;
  * @param opts
  */
 const handleOpts = (opts) => {
-    let masterOpts  = opts.master;
-    let workersOpts = opts.workers;
+    function handleMasterOpts() {
+        let masterOpts  = opts.master;
 
-    /**
-     * Handle master options
-     */
-    if ( typeof masterOpts === "string" )
-    {
-        let masterPath = `${path.dirname(require.main.filename)}/${masterOpts}`;
-
-        try
+        if ( typeof masterOpts === "string" )
         {
-            let src        = require(masterPath);
-            config.handler = src.default;
-        }
-        catch(e)
-        {
-            console.error(e);
-        }
-    }
+            let masterPath = `${path.dirname(require.main.filename)}/${masterOpts}`;
 
-    if ( typeof masterOpts === "function" )
-    {
-        config.handler = masterOpts;
-        return;
-    }
-
-    if ( typeof masterOpts === "object" )
-    {
-        assignOptions: for ( let opt in masterOpts )
-        {
-            if ( !masterOpts.hasOwnProperty(opt) )
+            try
             {
-                continue;
+                let src        = require(masterPath);
+                config.handler = src.default;
             }
-
-            switch ( true )
+            catch(e)
             {
-                case ( opt === "before"
-                       && typeof masterOpts[opt] === "function" ):
-                {
-                    config.before = masterOpts[opt];
-                } break;
+                console.error(e);
+            }
+        }
 
-                case ( opt === "after"
-                       && typeof masterOpts[opt] === "function" ):
-                {
-                    config.after = masterOpts[opt];
-                } break;
+        if ( typeof masterOpts === "function" )
+        {
+            config.handler = masterOpts;
+            return;
+        }
 
-                case ( opt === "handler" ):
+        if ( typeof masterOpts === "object" )
+        {
+            assignOptions: for ( let opt in masterOpts )
+            {
+                if ( !masterOpts.hasOwnProperty(opt) )
                 {
-                    if ( typeof masterOpts[opt] === "string" )
+                    continue;
+                }
+
+                switch ( true )
+                {
+                    case ( opt === "before"
+                    && typeof masterOpts[opt] === "function" ):
                     {
-                        try
-                        {
-                            let masterPath = `${path.dirname(require.main.filename)}/${masterOpts[opt]}`;
-                            let src        = require(masterPath);
-                            config.handler = src.default;
-                        }
-                        catch(e)
-                        {
-                            console.error(e);
-                        }
+                        config.before = masterOpts[opt];
+                    } break;
 
-                        continue assignOptions;
-                    }
-
-                    if ( typeof masterOpts[opt] === "function" )
+                    case ( opt === "after"
+                    && typeof masterOpts[opt] === "function" ):
                     {
-                        config.handler = masterOpts[opt];
-                        continue assignOptions;
-                    }
-                } break;
+                        config.after = masterOpts[opt];
+                    } break;
 
-                default:
-                {
-                    console.error(`Invalid option with name ${opt} or invalid data passed to it.`);
-                } break;
+                    case ( opt === "handler" ):
+                    {
+                        if ( typeof masterOpts[opt] === "string" )
+                        {
+                            try
+                            {
+                                let masterPath = `${path.dirname(require.main.filename)}/${masterOpts[opt]}`;
+                                let src        = require(masterPath);
+                                config.handler = src.default;
+                            }
+                            catch(e)
+                            {
+                                console.error(e);
+                            }
+
+                            continue assignOptions;
+                        }
+
+                        if ( typeof masterOpts[opt] === "function" )
+                        {
+                            config.handler = masterOpts[opt];
+                            continue assignOptions;
+                        }
+                    } break;
+
+                    default:
+                    {
+                        console.error(`Invalid option with name ${opt} or invalid data passed to it.`);
+                    } break;
+                }
             }
         }
     }
+    function handleWorkersOpts() {
+        let workersOpts = opts.workers;
 
-    /**
-     * Handle workers options dependent
-     * on master entity module
-     */
-    if ( typeof workersOpts === "object" )
-    {
-        assignOptions: for ( let opt in workersOpts )
+        if ( workersOpts instanceof Array )
         {
-            if ( !workersOpts.hasOwnProperty(opt) )
+            config.count = 0;
+
+            for( let worker in workersOpts )
             {
-                continue;
+                if ( !workersOpts.hasOwnProperty(worker) )
+                {
+                    continue;
+                }
+
+                config.count += ( workersOpts[worker].count || 1 );
             }
 
-            switch ( true )
+            return;
+        }
+
+        if ( typeof workersOpts === "object" )
+        {
+            assignOptions: for ( let opt in workersOpts )
             {
-                case ( opt === "count"
-                       && typeof workersOpts[opt] === "number" ):
+                if ( !workersOpts.hasOwnProperty(opt) )
                 {
-                    config.count = workersOpts[opt];
-                } break;
+                    continue;
+                }
+
+                switch ( true )
+                {
+                    case ( opt === "count"
+                    && typeof workersOpts[opt] === "number" ):
+                    {
+                        config.count = workersOpts[opt];
+                    } break;
+                }
             }
         }
     }
+
+    handleMasterOpts();
+    handleWorkersOpts();
 }
 
 /**

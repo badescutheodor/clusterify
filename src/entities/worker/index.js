@@ -37,6 +37,79 @@ const handleOpts = (opts) => {
         return;
     }
 
+    if ( workersOpts instanceof Array )
+    {
+        config.workers = [];
+
+        for ( let index in workersOpts )
+        {
+            let worker = workersOpts[index];
+
+            if ( !worker.hasOwnProperty("handler") )
+            {
+                continue;
+            }
+
+            if ( typeof worker.handler === "function" )
+            {
+                if ( worker.count )
+                {
+                    for(let i = 0; i < worker.count; i++)
+                    {
+                        config.workers.push({
+                            handler: worker.handler,
+                            alias: worker.alias
+                        });
+                    }
+                }
+                else
+                {
+                    config.workers.push({
+                        handler: worker.handler,
+                        alias: worker.alias
+                    });
+                }
+
+                continue;
+            }
+
+            if ( typeof worker.handler === "string" )
+            {
+                try
+                {
+                    let workerPath = `${path.dirname(require.main.filename)}/${worker.handler}`;
+                    let src        = require(workerPath);
+
+                    if ( worker.count )
+                    {
+                        for(let i = 0; i < worker.count; i++)
+                        {
+                            config.workers.push({
+                                handler: src.default,
+                                alias: worker.alias
+                            });
+                        }
+                    }
+                    else
+                    {
+                        config.workers.push({
+                            handler: src.default,
+                            alias: worker.alias
+                        });
+                    }
+                }
+                catch(e)
+                {
+                    console.error(e);
+                }
+
+                continue;
+            }
+        }
+
+        return;
+    }
+
     if ( typeof workersOpts === "object" )
     {
         assignOptions: for ( let opt in workersOpts )
@@ -101,16 +174,21 @@ export default (opts, bridge) => {
     bridge.bind();
 
     /**
-     * Run the worker handler
+     * Run the worker handler(s)
      */
     if ( typeof config.handler === "function" )
     {
-        /**
-         * This timeout is being used to wait
-         * for the worker to get its id
-         */
         emitter.on(EVENT_LOADED, () => {
             new (config.handler)(bridge);
+        });
+
+        return;
+    }
+
+    if ( config.workers instanceof Array )
+    {
+        emitter.on(EVENT_LOADED, () => {
+            new (config.workers[bridge.id - 1].handler)(bridge);
         });
     }
 }
