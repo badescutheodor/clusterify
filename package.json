@@ -14,6 +14,10 @@
     "url": "https://github.com/badescutheodor/cruster/issues",
     "email": "theo@btheo.com"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/badescutheodor/cruster"
+  },
   "keywords": [
     "cluster",
     "workers",
