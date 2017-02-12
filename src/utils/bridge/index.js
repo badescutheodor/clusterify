@@ -215,7 +215,7 @@ export default class {
                 res.ack = (res) => {
                     let payload = identifier;
 
-                    if ( res )
+                    if ( typeof res !== "undefined" )
                     {
                         payload = [identifier, res];
                     }
@@ -484,7 +484,6 @@ export default class {
                         payload: data
                     };
 
-                    // @TODO: check me
                     if ( hasIdentifier )
                     {
                         payload.confirmed  = true;

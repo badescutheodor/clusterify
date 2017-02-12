@@ -237,7 +237,7 @@ var _class = function () {
                     res.ack = function (res) {
                         var payload = identifier;
 
-                        if (res) {
+                        if (typeof res !== "undefined") {
                             payload = [identifier, res];
                         }
 
@@ -479,7 +479,6 @@ var _class = function () {
                             payload: data
                         };
 
-                        // @TODO: check me
                         if (hasIdentifier) {
                             _payload4.confirmed = true;
                             _payload4.identifier = callback;

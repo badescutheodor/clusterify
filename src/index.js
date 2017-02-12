@@ -2,6 +2,7 @@ import cluster from 'cluster'
 import Master from './entities/master'
 import Worker from './entities/worker'
 import Bridge from './utils/bridge'
+import Storage from './utils/storage'
 
 /**
  * Default options, overwritten in constructor
@@ -11,7 +12,8 @@ const defaults = {
     master: {
         handler: "./master.js"
     },
-    worker: "./worker.js"
+    worker: "./worker.js",
+    storage: false
 };
 
 /**
@@ -25,6 +27,11 @@ export default class {
     constructor(opts) {
         this.opts   = { ...defaults, ...opts };
         this.bridge = new Bridge(this.opts.debug || false);
+
+        if ( this.opts.storage )
+        {
+            this.storage = new Storage(this.opts.storage, this.bridge);
+        }
     }
 
     /**
@@ -33,10 +40,10 @@ export default class {
      */
     run() {
         if ( cluster.isMaster ) {
-            new Master(this.opts, this.bridge);
+            new Master(this.opts, this.bridge, this.storage);
             return;
         }
 
-        new Worker(this.opts, this.bridge);
+        new Worker(this.opts, this.bridge, this.storage);
     }
 }

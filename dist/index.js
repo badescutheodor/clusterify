@@ -24,6 +24,10 @@ var _bridge = require('./utils/bridge');
 
 var _bridge2 = _interopRequireDefault(_bridge);
 
+var _storage = require('./utils/storage');
+
+var _storage2 = _interopRequireDefault(_storage);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -36,7 +40,8 @@ var defaults = {
     master: {
         handler: "./master.js"
     },
-    worker: "./worker.js"
+    worker: "./worker.js",
+    storage: false
 };
 
 /**
@@ -53,6 +58,10 @@ var _class = function () {
 
         this.opts = _extends({}, defaults, opts);
         this.bridge = new _bridge2.default(this.opts.debug || false);
+
+        if (this.opts.storage) {
+            this.storage = new _storage2.default(this.opts.storage, this.bridge);
+        }
     }
 
     /**
@@ -65,11 +74,11 @@ var _class = function () {
         key: 'run',
         value: function run() {
             if (_cluster2.default.isMaster) {
-                new _master2.default(this.opts, this.bridge);
+                new _master2.default(this.opts, this.bridge, this.storage);
                 return;
             }
 
-            new _worker2.default(this.opts, this.bridge);
+            new _worker2.default(this.opts, this.bridge, this.storage);
         }
     }]);
 

@@ -152,7 +152,7 @@ var handleOpts = function handleOpts(opts) {
  * @param opts
  */
 
-exports.default = function (opts, bridge) {
+exports.default = function (opts, bridge, storage) {
     handleOpts(opts);
     bridge.bind();
 
@@ -161,7 +161,7 @@ exports.default = function (opts, bridge) {
      */
     if (typeof config.handler === "function") {
         _events2.default.on(_constants.EVENT_LOADED, function () {
-            new config.handler(bridge);
+            new config.handler(bridge, storage);
         });
 
         return;
@@ -169,7 +169,7 @@ exports.default = function (opts, bridge) {
 
     if (config.workers instanceof Array) {
         _events2.default.on(_constants.EVENT_LOADED, function () {
-            new config.workers[bridge.id - 1].handler(bridge);
+            new config.workers[bridge.id - 1].handler(bridge, storage);
         });
     }
 };

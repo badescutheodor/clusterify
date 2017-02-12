@@ -16,3 +16,5 @@ var ACTION_PENDING_SET_ID = exports.ACTION_PENDING_SET_ID = "set:pending:worker:
 var ACTION_SUCCESS_SET_ID = exports.ACTION_SUCCESS_SET_ID = "set:success:worker:id";
 var ACTION_CONFIRM_EMIT = exports.ACTION_CONFIRM_EMIT = "confirm:message:received";
 var ACTION_SET_WORKERS_COUNT = exports.ACTION_SET_WORKERS_COUNT = "set:work:total:count";
+var ACTION_GET_STORAGE = exports.ACTION_GET_STORAGE = "cruster:get:storage";
+var ACTION_SET_STORAGE = exports.ACTION_SET_STORAGE = "cruster:set:storage";

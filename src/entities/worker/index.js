@@ -165,7 +165,7 @@ const handleOpts = (opts) => {
  * Export the worker instance
  * @param opts
  */
-export default (opts, bridge) => {
+export default (opts, bridge, storage) => {
     handleOpts(opts);
     bridge.bind();
 
@@ -175,7 +175,7 @@ export default (opts, bridge) => {
     if ( typeof config.handler === "function" )
     {
         emitter.on(EVENT_LOADED, () => {
-            new (config.handler)(bridge);
+            new (config.handler)(bridge, storage);
         });
 
         return;
@@ -184,7 +184,7 @@ export default (opts, bridge) => {
     if ( config.workers instanceof Array )
     {
         emitter.on(EVENT_LOADED, () => {
-            new (config.workers[bridge.id - 1].handler)(bridge);
+            new (config.workers[bridge.id - 1].handler)(bridge, storage);
         });
     }
 }

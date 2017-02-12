@@ -178,7 +178,7 @@ const spawn = () => {
  * the worker instances
  * @param opts
  */
-export default (opts, bridge) => {
+export default (opts, bridge, storage) => {
     handleOpts(opts);
 
     if ( config.before
@@ -187,20 +187,11 @@ export default (opts, bridge) => {
         config.before();
     }
 
-    /**
-     * @TODO:
-     * Find a better name for the
-     * channel variable
-     */
     channel = bridge;
     channel.bind();
 
     /**
      * Spawns the workers
-     *
-     * @TODO:
-     * Find a better place to do
-     * this action
      */
     spawn();
 
@@ -215,7 +206,7 @@ export default (opts, bridge) => {
          * initializing
          */
         emitter.on(EVENT_LOADED, () => {
-            new (config.handler)(bridge);
+            new (config.handler)(bridge, storage);
 
             if ( config.after
                 && typeof config.after === "function" )

@@ -11,3 +11,5 @@ export const ACTION_PENDING_SET_ID    = "set:pending:worker:id";
 export const ACTION_SUCCESS_SET_ID    = "set:success:worker:id";
 export const ACTION_CONFIRM_EMIT      = "confirm:message:received"
 export const ACTION_SET_WORKERS_COUNT = "set:work:total:count";
+export const ACTION_GET_STORAGE       = "cruster:get:storage";
+export const ACTION_SET_STORAGE       = "cruster:set:storage";

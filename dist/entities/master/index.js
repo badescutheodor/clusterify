@@ -176,27 +176,18 @@ var spawn = function spawn() {
  * @param opts
  */
 
-exports.default = function (opts, bridge) {
+exports.default = function (opts, bridge, storage) {
     handleOpts(opts);
 
     if (config.before && typeof config.before === "function") {
         config.before();
     }
 
-    /**
-     * @TODO:
-     * Find a better name for the
-     * channel variable
-     */
     channel = bridge;
     channel.bind();
 
     /**
      * Spawns the workers
-     *
-     * @TODO:
-     * Find a better place to do
-     * this action
      */
     spawn();
 
@@ -210,7 +201,7 @@ exports.default = function (opts, bridge) {
          * initializing
          */
         _events2.default.on(_constants.EVENT_LOADED, function () {
-            new config.handler(bridge);
+            new config.handler(bridge, storage);
 
             if (config.after && typeof config.after === "function") {
                 config.after();
