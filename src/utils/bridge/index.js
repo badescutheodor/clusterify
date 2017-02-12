@@ -182,8 +182,17 @@ export default class {
         {
             let bytes  = sizeof(data);
             let kbytes = bytes / 1000
+            let to     = transit ? '0' : this.id;
 
-            console.log(`(debug)(${kbytes} kbs): ${from} -> ${to}`);
+            if ( to instanceof Array )
+            {
+                to = to.filter((entity) => { return entity !== this.id });
+            }
+
+            if ( message !== ACTION_CONFIRM_EMIT )
+            {
+                console.log(`(debug)(${kbytes} kbs): [${message}]: ${from} -> ${to}`);
+            }
         }
 
         function build() {

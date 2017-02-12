@@ -192,6 +192,8 @@ var _class = function () {
     }, {
         key: 'handle',
         value: function handle(data) {
+            var _this3 = this;
+
             var message = data.message;
             var payload = data.payload;
             var from = data.from;
@@ -203,12 +205,21 @@ var _class = function () {
             if (this.debug) {
                 var bytes = (0, _helpers.sizeof)(data);
                 var kbytes = bytes / 1000;
+                var _to = transit ? '0' : this.id;
 
-                console.log('(debug)(' + kbytes + ' kbs): ' + from + ' -> ' + to);
+                if (_to instanceof Array) {
+                    _to = _to.filter(function (entity) {
+                        return entity !== _this3.id;
+                    });
+                }
+
+                if (message !== _constants.ACTION_CONFIRM_EMIT) {
+                    console.log('(debug)(' + kbytes + ' kbs): [' + message + ']: ' + from + ' -> ' + _to);
+                }
             }
 
             function build() {
-                var _this3 = this;
+                var _this4 = this;
 
                 var res = {
                     getPayload: function getPayload() {
@@ -230,7 +241,7 @@ var _class = function () {
                             payload = [identifier, res];
                         }
 
-                        _this3.to(from).emit(_constants.ACTION_CONFIRM_EMIT, payload);
+                        _this4.to(from).emit(_constants.ACTION_CONFIRM_EMIT, payload);
                     };
 
                     res.getIdentifier = function () {
