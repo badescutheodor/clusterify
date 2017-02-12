@@ -237,7 +237,7 @@ var _class = function () {
                     res.ack = function (res) {
                         var payload = identifier;
 
-                        if (res) {
+                        if (typeof res !== "undefined") {
                             payload = [identifier, res];
                         }
 
