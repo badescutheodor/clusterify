@@ -33,7 +33,7 @@ var handleOpts = function handleOpts(opts) {
     //let masterOpts  = opts.master;
 
     if (typeof workersOpts === "string") {
-        var workerPath = _path2.default.dirname(require.main.filename) + '/' + workerOpts;
+        var workerPath = _path2.default.dirname(require.main.filename) + '/' + workersOpts;
 
         try {
             var src = require(workerPath);
