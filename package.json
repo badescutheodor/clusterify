@@ -1,6 +1,6 @@
 {
   "name": "cruster",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Wrapper on top of node's cluster module. Used for handling communication between entities in an easy manner.",
   "main": "./dist/index.js",
   "scripts": {
