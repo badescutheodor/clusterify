@@ -18,7 +18,7 @@ const handleOpts = (opts) => {
 
     if ( typeof workersOpts === "string" )
     {
-        let workerPath = `${path.dirname(require.main.filename)}/${workerOpts}`;
+        let workerPath = `${path.dirname(require.main.filename)}/${workersOpts}`;
 
         try
         {
@@ -137,8 +137,8 @@ const handleOpts = (opts) => {
                     {
                         try
                         {
-                            let masterPath = `${path.dirname(require.main.filename)}/${workersOpts[opt]}`;
-                            let src        = require(masterPath);
+                            let workerPath = `${path.dirname(require.main.filename)}/${workersOpts[opt]}`;
+                            let src        = require(workerPath);
                             config.handler = src.hasOwnProperty("default") ? src.default : src;
                         }
                         catch(e)

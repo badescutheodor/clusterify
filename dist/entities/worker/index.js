@@ -126,8 +126,8 @@ var handleOpts = function handleOpts(opts) {
                     {
                         if (typeof workersOpts[opt] === "string") {
                             try {
-                                var masterPath = _path2.default.dirname(require.main.filename) + '/' + workersOpts[opt];
-                                var _src2 = require(masterPath);
+                                var _workerPath2 = _path2.default.dirname(require.main.filename) + '/' + workersOpts[opt];
+                                var _src2 = require(_workerPath2);
                                 config.handler = _src2.hasOwnProperty("default") ? _src2.default : _src2;
                             } catch (e) {
                                 console.error(e);
