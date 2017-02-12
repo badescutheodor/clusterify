@@ -1,4 +1,4 @@
-import clusterify from '../../src'
+import cruster from '../../src'
 
 const opts = {
     master: () => {
@@ -85,4 +85,4 @@ const opts = {
     ]
 };
 
-new clusterify(opts).run();
+new cruster(opts).run();

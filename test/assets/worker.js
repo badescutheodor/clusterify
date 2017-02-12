@@ -78,9 +78,6 @@ export default class {
             setTimeout(() => {
                 t(name);
 
-                /**
-                 * @TODO: Allow one identifier
-                 */
                 this.bridge.to([2]).emit(name, null, () => {
                     clearTimeout(timeout);
                     !timeout._called && this.printResult(name, t(name));

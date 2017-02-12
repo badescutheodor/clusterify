@@ -9,8 +9,8 @@ Object.defineProperty(exports, "__esModule", {
  *
  * @type {string}
  */
-var EVENT_LOADED = exports.EVENT_LOADED = "clusterify:loaded";
-var EVENT_SUCCESS_SET_ID = exports.EVENT_SUCCESS_SET_ID = "clusterify:success:set:id";
+var EVENT_LOADED = exports.EVENT_LOADED = "cruster:loaded";
+var EVENT_SUCCESS_SET_ID = exports.EVENT_SUCCESS_SET_ID = "cruster:success:set:id";
 
 var ACTION_PENDING_SET_ID = exports.ACTION_PENDING_SET_ID = "set:pending:worker:id";
 var ACTION_SUCCESS_SET_ID = exports.ACTION_SUCCESS_SET_ID = "set:success:worker:id";

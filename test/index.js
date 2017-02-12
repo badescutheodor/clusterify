@@ -1,4 +1,4 @@
-import clusterify from '../src'
+import cruster from '../src'
 
 /**
  * It's very hard to test a parallel
@@ -8,7 +8,7 @@ import clusterify from '../src'
  * and from within ./assets/worker.js files.
  */
 
-new clusterify({
+new cruster({
     master: './assets/master.js',
     workers: {
         handler: "./assets/worker.js",

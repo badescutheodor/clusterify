@@ -311,8 +311,6 @@ export default class {
                 /**
                  * Remove the handler as the emit
                  * is registered one time only
-                 *
-                 * @TODO: If in a for loop, the pending object could fill the memory
                  */
                 delete pending[identifier];
             }
@@ -529,8 +527,6 @@ export default class {
                 {
                     payload.confirmed  = true;
                     payload.identifier = makeIdentifier(fromEntity, message);
-
-                    // @TODO
 
                     /**
                      * The sender is master, store the identifier

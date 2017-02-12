@@ -1,4 +1,4 @@
-# clusterify
+# cruster
 Node.js wrapper on top of the cluster module used for handling workers intercommunication in an easy manner. Please note that I am the only maintainer but I am willing to help with any issue that may appear. Also, I am open for PRs so if you have any improvement you are welcome to pull request.
 
 Also, before you continue, please note that IPC has its own limitations so please try to make the data sent between workers / master as small as possible and try not to flood it channel too much as the node's process could freeze leaving the application unusable.
@@ -9,8 +9,8 @@ Also, before you continue, please note that IPC has its own limitations so pleas
 The below code snippet is used to create a cluster environment. Note that the code from within the master is only run once while the workers code is run by how many workers are specified. In this case it **defaults to how many cores the machine has**.
 
 ```javascript
-var clusterify = require('clusterify');
-var opts       = {};
+var cruster = require('cruster');
+var opts    = {};
 
 opts.master = function(bridge) {
 
@@ -20,7 +20,7 @@ opts.workers = function(bridge) {
 
 };
 
-new clusterify(opts).run();
+new cruster(opts).run();
 ```
 
 ### Communication
@@ -29,8 +29,8 @@ To communicate between workers and master you may use the bridge object followin
 #### worker -> master
 
 ```javascript
-var clusterify = require('clusterify');
-var opts       = {};
+var cruster = require('cruster');
+var opts    = {};
 
 opts.master = function(bridge) {
     bridge.from('*').on('test', function(data) {
@@ -50,15 +50,15 @@ opts.workers = function(bridge) {
     bridge.to(0).emit('test2', null);
 };
 
-new clusterify(opts).run();
+new cruster(opts).run();
 ```
 
 #### worker -> worker
 The worker to worker communication is being handled by the master process. Messages get through the master process and get rerouted to the worker process.
 
 ```javascript
-var clusterify = require('clusterify');
-var opts       = {};
+var cruster = require('cruster');
+var opts    = {};
 
 opts.master = function(bridge) {
 
@@ -79,7 +79,7 @@ opts.workers = function(bridge) {
     }
 };
 
-new clusterify(opts).run();
+new cruster(opts).run();
 ```
 
 #### acknowledgement
@@ -87,8 +87,8 @@ You may specify a third parameter inside the emit function call that will be cal
 acknowledged the request. Note that this will increase the messages sent through IPC greatly.
 
 ```javascript
-var clusterify = require('clusterify');
-var opts       = {};
+var cruster = require('cruster');
+var opts    = {};
 
 opts.master = function(bridge) {
 
@@ -112,26 +112,26 @@ opts.workers = function(bridge) {
     }
 };
 
-new clusterify(opts).run();
+new cruster(opts).run();
 ```
 ## Configuration
 For handling more complex configurations file paths to workers can be specified.
 
 ```javascript
-var clusterify = require('clusterify');
-var opts       = {
+var cruster = require('cruster');
+var opts    = {
     master: './master.js',
     workers: './worker.js'
 };
 
-new clusterify(opts).run();
+new cruster(opts).run();
 ```
 
 You can also specify the number of workers through the **count** property from inside the workers configuration:
 
 ```javascript
-var clusterify = require('clusterify');
-var opts       = {
+var cruster = require('cruster');
+var opts    = {
     master: './master.js',
     workers: {
         handler: './worker.js',
@@ -139,14 +139,14 @@ var opts       = {
     }
 };
 
-new clusterify(opts).run();
+new cruster(opts).run();
 ```
 
 Or even separate the workers roles by specifying an workers array:
 
 ```javascript
-var clusterify = require('clusterify');
-var opts       = {
+var cruster = require('cruster');
+var opts    = {
     master: function(bridge) {
         // You may also pass functions instead of 
         // file paths for both workers and master
@@ -164,15 +164,15 @@ var opts       = {
     ]
 };
 
-new clusterify(opts).run();
+new cruster(opts).run();
 ```
 
 You may also specify functions to run before and after the master process has initialized using the
 **before** and **after** options:
 
 ```javascript
-var clusterify = require('clusterify');
-var opts       = {
+var cruster = require('cruster');
+var opts    = {
     master: {
         handler: './master.js',
         before: function() {
@@ -188,19 +188,19 @@ var opts       = {
     }
 };
 
-new clusterify(opts).run();
+new cruster(opts).run();
 ```
 
 #### Debug
 It's pretty difficult to debug a multi process application and that's why you can use the ***debug*** for getting a view on what events are being bind or the flow of the messages.
 
 ```javascript
-var clusterify = require('clusterify');
-var opts       = {
+var cruster = require('cruster');
+var opts    = {
     debug: true,
     master: './master.js',
     workers: './worker.js'
 };
 
-new clusterify(opts).run();
+new cruster(opts).run();
 ```

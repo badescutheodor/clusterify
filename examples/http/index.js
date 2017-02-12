@@ -1,4 +1,4 @@
-import clusterify from '../../src'
+import cruster from '../../src'
 import http from 'http'
 import os from 'os'
 
@@ -35,6 +35,6 @@ const opts = {
     }
 };
 
-(new clusterify(opts)).run();
+(new cruster(opts)).run();
 
 

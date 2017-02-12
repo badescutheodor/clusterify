@@ -1,5 +1,5 @@
 {
-  "name": "clusterify",
+  "name": "cruster",
   "version": "1.0.0",
   "description": "Wrapper on top of node's cluster module. Used for handling intercommuncation between `entities`.",
   "main": "./dist/index.js",

@@ -3,7 +3,6 @@
  */
 
 // Function for handling string colors
-// @TODO make this a standalone module on npm
 export const c = (() => {
     let colors = {
         cyan:   '\x1b[36m%s\x1b[0m',
