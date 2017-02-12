@@ -7,7 +7,8 @@ Also, before you continue, please note that IPC has its own limitations so pleas
 
 ### Getting Started
 The below code snippet is used to create a cluster environment. Note that the code from within the master is only run once while the workers code is run by how many workers are specified. In this case it **defaults to how many cores the machine has**.
-```
+
+```javascript
 var clusterify = require('clusterify');
 var opts       = {};
 
@@ -26,7 +27,8 @@ new clusterify(opts).run();
 To communicate between workers and master you may use the bridge object following the below syntax.
 
 #### worker -> master
-```
+
+```javascript
 var clusterify = require('clusterify');
 var opts       = {};
 
@@ -53,7 +55,8 @@ new clusterify(opts).run();
 
 #### worker -> worker
 The worker to worker communication is being handled by the master process. Messages get through the master process and get rerouted to the worker process.
-```
+
+```javascript
 var clusterify = require('clusterify');
 var opts       = {};
 
@@ -79,10 +82,42 @@ opts.workers = function(bridge) {
 new clusterify(opts).run();
 ```
 
+#### acknowledgement
+You may specify a third parameter inside the emit function call that will be called after the worker(s) has/have
+acknowledged the request. Note that this will increase the messages sent through IPC greatly.
+
+```javascript
+var clusterify = require('clusterify');
+var opts       = {};
+
+opts.master = function(bridge) {
+
+};
+
+opts.workers = function(bridge) {
+    if ( bridge.id === 1)
+    {
+        // Send data to worker with id 2
+        bridge.to(2).emit('test', null, function(replies) {
+            console.log(replies.get(2)); // Reply from worker with id 2
+        });
+    }
+    
+    if ( bridge.id === 2 )
+    {
+        bridge.from(1).on('test', function(data) {
+            // Worker with id 2 got data from worker with id 1
+            data.ack('Response');
+        });
+    }
+};
+
+new clusterify(opts).run();
+```
 ## Configuration
 For handling more complex configurations file paths to workers can be specified.
 
-```
+```javascript
 var clusterify = require('clusterify');
 var opts       = {
     master: './master.js',
@@ -94,7 +129,7 @@ new clusterify(opts).run();
 
 You can also specify the number of workers through the **count** property from inside the workers configuration:
 
-```
+```javascript
 var clusterify = require('clusterify');
 var opts       = {
     master: './master.js',
@@ -109,7 +144,7 @@ new clusterify(opts).run();
 
 Or even separate the workers roles by specifying an workers array:
 
-```
+```javascript
 var clusterify = require('clusterify');
 var opts       = {
     master: function(bridge) {
@@ -135,7 +170,7 @@ new clusterify(opts).run();
 You may also specify functions to run before and after the master process has initialized using the
 **before** and **after** options:
 
-```
+```javascript
 var clusterify = require('clusterify');
 var opts       = {
     master: {
@@ -159,7 +194,7 @@ new clusterify(opts).run();
 #### Debug
 It's pretty difficult to debug a multi process application and that's why you can use the ***debug*** for getting a view on what events are being bind or the flow of the messages.
 
-```
+```javascript
 var clusterify = require('clusterify');
 var opts       = {
     debug: true,
