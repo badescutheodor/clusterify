@@ -62,14 +62,12 @@ var handleOpts = function handleOpts(opts) {
                 if (worker.count) {
                     for (var i = 0; i < worker.count; i++) {
                         config.workers.push({
-                            handler: worker.handler,
-                            alias: worker.alias
+                            handler: worker.handler
                         });
                     }
                 } else {
                     config.workers.push({
-                        handler: worker.handler,
-                        alias: worker.alias
+                        handler: worker.handler
                     });
                 }
 
@@ -84,14 +82,12 @@ var handleOpts = function handleOpts(opts) {
                     if (worker.count) {
                         for (var _i = 0; _i < worker.count; _i++) {
                             config.workers.push({
-                                handler: _src.hasOwnProperty("default") ? _src.default : _src,
-                                alias: worker.alias
+                                handler: _src.hasOwnProperty("default") ? _src.default : _src
                             });
                         }
                     } else {
                         config.workers.push({
-                            handler: _src.hasOwnProperty("default") ? _src.default : _src,
-                            alias: worker.alias
+                            handler: _src.hasOwnProperty("default") ? _src.default : _src
                         });
                     }
                 } catch (e) {

@@ -211,11 +211,11 @@ exports.default = function (opts, bridge) {
          */
         _events2.default.on(_constants.EVENT_LOADED, function () {
             new config.handler(bridge);
-        });
-    }
 
-    if (config.after && typeof config.after === "function") {
-        config.after();
+            if (config.after && typeof config.after === "function") {
+                config.after();
+            }
+        });
     }
 };
 

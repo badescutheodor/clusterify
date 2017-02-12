@@ -216,12 +216,12 @@ export default (opts, bridge) => {
          */
         emitter.on(EVENT_LOADED, () => {
             new (config.handler)(bridge);
-        });
-    }
 
-    if ( config.after
-         && typeof config.after === "function" )
-    {
-        config.after();
+            if ( config.after
+                && typeof config.after === "function" )
+            {
+                config.after();
+            }
+        });
     }
 }
