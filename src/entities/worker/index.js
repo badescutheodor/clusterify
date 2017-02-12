@@ -23,7 +23,7 @@ const handleOpts = (opts) => {
         try
         {
             let src        = require(workerPath);
-            config.handler = src.default;
+            config.handler = src.hasOwnProperty("default") ? src.default : src;
         }
         catch(e)
         {
@@ -85,7 +85,7 @@ const handleOpts = (opts) => {
                         for(let i = 0; i < worker.count; i++)
                         {
                             config.workers.push({
-                                handler: src.default,
+                                handler: src.hasOwnProperty("default") ? src.default : src,
                                 alias: worker.alias
                             });
                         }
@@ -93,7 +93,7 @@ const handleOpts = (opts) => {
                     else
                     {
                         config.workers.push({
-                            handler: src.default,
+                            handler: src.hasOwnProperty("default") ? src.default : src,
                             alias: worker.alias
                         });
                     }
@@ -139,7 +139,7 @@ const handleOpts = (opts) => {
                         {
                             let masterPath = `${path.dirname(require.main.filename)}/${workersOpts[opt]}`;
                             let src        = require(masterPath);
-                            config.handler = src.default;
+                            config.handler = src.hasOwnProperty("default") ? src.default : src;
                         }
                         catch(e)
                         {

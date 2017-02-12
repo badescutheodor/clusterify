@@ -318,8 +318,6 @@ var _class = function () {
                     /**
                      * Remove the handler as the emit
                      * is registered one time only
-                     *
-                     * @TODO: If in a for loop, the pending object could fill the memory
                      */
                     delete pending[_identifier];
                 }
@@ -516,8 +514,6 @@ var _class = function () {
                     if (callback && typeof callback === "function") {
                         _payload3.confirmed = true;
                         _payload3.identifier = makeIdentifier(fromEntity, message);
-
-                        // @TODO
 
                         /**
                          * The sender is master, store the identifier

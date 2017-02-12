@@ -37,7 +37,7 @@ var handleOpts = function handleOpts(opts) {
 
         try {
             var src = require(workerPath);
-            config.handler = src.default;
+            config.handler = src.hasOwnProperty("default") ? src.default : src;
         } catch (e) {
             console.error(e);
         }
@@ -84,13 +84,13 @@ var handleOpts = function handleOpts(opts) {
                     if (worker.count) {
                         for (var _i = 0; _i < worker.count; _i++) {
                             config.workers.push({
-                                handler: _src.default,
+                                handler: _src.hasOwnProperty("default") ? _src.default : _src,
                                 alias: worker.alias
                             });
                         }
                     } else {
                         config.workers.push({
-                            handler: _src.default,
+                            handler: _src.hasOwnProperty("default") ? _src.default : _src,
                             alias: worker.alias
                         });
                     }
@@ -128,7 +128,7 @@ var handleOpts = function handleOpts(opts) {
                             try {
                                 var masterPath = _path2.default.dirname(require.main.filename) + '/' + workersOpts[opt];
                                 var _src2 = require(masterPath);
-                                config.handler = _src2.default;
+                                config.handler = _src2.hasOwnProperty("default") ? _src2.default : _src2;
                             } catch (e) {
                                 console.error(e);
                             }

@@ -51,7 +51,7 @@ var handleOpts = function handleOpts(opts) {
 
             try {
                 var src = require(masterPath);
-                config.handler = src.default;
+                config.handler = src.hasOwnProperty("default") ? src.default : src;
             } catch (e) {
                 console.error(e);
             }
@@ -85,7 +85,7 @@ var handleOpts = function handleOpts(opts) {
                                 try {
                                     var _masterPath = _path2.default.dirname(require.main.filename) + '/' + masterOpts[opt];
                                     var _src = require(_masterPath);
-                                    config.handler = _src.default;
+                                    config.handler = _src.hasOwnProperty("default") ? _src.default : _src;
                                 } catch (e) {
                                     console.error(e);
                                 }

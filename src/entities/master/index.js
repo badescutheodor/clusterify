@@ -31,7 +31,7 @@ const handleOpts = (opts) => {
             try
             {
                 let src        = require(masterPath);
-                config.handler = src.default;
+                config.handler = src.hasOwnProperty("default") ? src.default : src;
             }
             catch(e)
             {
@@ -76,7 +76,7 @@ const handleOpts = (opts) => {
                             {
                                 let masterPath = `${path.dirname(require.main.filename)}/${masterOpts[opt]}`;
                                 let src        = require(masterPath);
-                                config.handler = src.default;
+                                config.handler = src.hasOwnProperty("default") ? src.default : src;
                             }
                             catch(e)
                             {
