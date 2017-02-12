@@ -57,16 +57,14 @@ const handleOpts = (opts) => {
                     for(let i = 0; i < worker.count; i++)
                     {
                         config.workers.push({
-                            handler: worker.handler,
-                            alias: worker.alias
+                            handler: worker.handler
                         });
                     }
                 }
                 else
                 {
                     config.workers.push({
-                        handler: worker.handler,
-                        alias: worker.alias
+                        handler: worker.handler
                     });
                 }
 
@@ -85,16 +83,14 @@ const handleOpts = (opts) => {
                         for(let i = 0; i < worker.count; i++)
                         {
                             config.workers.push({
-                                handler: src.hasOwnProperty("default") ? src.default : src,
-                                alias: worker.alias
+                                handler: src.hasOwnProperty("default") ? src.default : src
                             });
                         }
                     }
                     else
                     {
                         config.workers.push({
-                            handler: src.hasOwnProperty("default") ? src.default : src,
-                            alias: worker.alias
+                            handler: src.hasOwnProperty("default") ? src.default : src
                         });
                     }
                 }
