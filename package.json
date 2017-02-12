@@ -9,6 +9,12 @@
     "build": "babel src --out-dir dist"
   },
   "author": "Badescu Theodor<theo@btheo.com>",
+  "url": "https://github.com/badescutheodor/cruster",
+  "bugs": {
+    "url" : "https://github.com/badescutheodor/cruster/issues",
+    "email" : "theo@btheo.com"
+  },
+  "keywords": ["cluster", "workers", "parallel"],
   "license": "MIT",
   "devDependencies": {
     "babel-plugin-add-module-exports": "^0.2.1",
